@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "bun --watch run ./dev.imba",
-    "bundle": "bun run ./compile.imba"
+    "compile": "bun run ./compile.imba"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
