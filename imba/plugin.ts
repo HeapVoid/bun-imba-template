@@ -43,16 +43,17 @@ export const imbaPlugin: BunPlugin = {
       // the file has been successfully compiled
       if (!out.errors || !out.errors.length) {
         console.write(theme.success("ok" + "\n"));
-        contents = out.js;
         stats.compiled++;
+        contents = out.js;
       }
       // there were errors during compilation
       else {
         console.write(theme.failure(" fail ") + "\n");
+        stats.failed++;
         for (let i = 0; i < out.errors.length; i++) {
+          console.log(out.errors[i].message)
           printerr(out.errors[i]);
         }
-        stats.failed++;
       }
       
       // and return the compiled source code as "js"
@@ -73,6 +74,7 @@ plugin(imbaPlugin);
 
 type imbaCompilerError = {
   toSnippet: Function;
+  toError: Function;
   message: string;
   range: {
     start: {
@@ -105,7 +107,7 @@ function printerr(err: imbaCompilerError) {
     errs: snippet[2].indexOf('^'),
     erre: snippet[2].lastIndexOf('^') + 1,
   };
-  
+
   // calculate parameters for priniting a message
   const center = display.margin.length + display.errs + Math.floor((display.erre - display.errs) / 2);
   const half = Math.ceil((display.error.length - 1) / 2);

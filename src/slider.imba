@@ -5,22 +5,22 @@
 export tag Slider
 
 	def slide
-		console.log self
-		const elm = document.querySelector('#slider');
-		const max = elm.scrollWidth - elm.clientWidth;
+		const elm = document.querySelector('#slider')
+		return if !elm
+		const max = elm.scrollWidth - elm.clientWidth
 		const left = elm.clientWidth;
 		if max === elm.scrollLeft
 			elm.scrollTo({left: 0, behavior: 'smooth'})
 		else
 			elm.scrollBy({left, behavior: 'smooth'})
-	
+		
 	def mount
 		setInterval(slide, 5000)
 
 	<self>
 		<div#slider.h-screen.w-full.overflow-hidden.flex.flex-nowrap.text-center>
 			<div.bg-teal-500.text-white.space-y-4.flex-none.w-full.flex.flex-col.items-center.justify-center>
-				<h2.text-4xl max-w-md> "Imba and Bun"
+				<h2.text-4xl.max-w-md> "Imba and Bun"
 				<p.max-w-md> "They finally met. Now you can bundle your Imba server side or client side projects with Bun in milliseconds."
 			<div.bg-blue-600.text-white.space-y-4.flex-none.w-full.flex.flex-col.items-center.justify-center>
 				<h2.text-4xl.max-w-md> "Live reload"

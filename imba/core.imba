@@ -1,4 +1,5 @@
 import fs from "fs"
+import path from 'path'
 import ansis from 'ansis'
 import type { BuildConfig } from 'bun'
 import {imbaPlugin, stats} from './plugin.ts'
@@ -114,8 +115,8 @@ export def serve options = {source: '', public: '', entry: 'index.imba', port: 8
 	console.log("HTTP server is up and running: {theme.link("http://localhost:{options.port}")}")
 
 	# watch for changes in the source folder
-	const srcpath = (Bun.main.match(/(.*)[\/\\]/)[1] || '') + options.source.slice(1)
-	let watcher = fs.watch(srcpath, {recursive: true}, &) do(event, filename)
+	const src = path.dirname(Bun.main) + options.source.slice(1)
+	let watcher = fs.watch(src, {recursive: true}, &) do(event, filename)
 		await bundle(build)
 		for client in clients
 			client.send('reload')
