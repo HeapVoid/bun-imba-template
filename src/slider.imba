@@ -5,6 +5,7 @@
 export tag Slider
 
 	def slide
+		console.log self
 		const elm = document.querySelector('#slider');
 		const max = elm.scrollWidth - elm.clientWidth;
 		const left = elm.clientWidth;
@@ -12,7 +13,7 @@ export tag Slider
 			elm.scrollTo({left: 0, behavior: 'smooth'})
 		else
 			elm.scrollBy({left, behavior: 'smooth'})
-		
+	
 	def mount
 		setInterval(slide, 5000)
 

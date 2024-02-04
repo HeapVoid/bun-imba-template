@@ -8,8 +8,8 @@
     "imba": "^2.0.0-alpha.234"
   },
   "scripts": {
-    "dev": "bun --watch run ./dev.imba",
-    "compile": "bun run ./compile.imba"
+    "serve": "bun --watch run ./script.serve.imba",
+    "bundle": "bun run ./script.bundle.imba"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

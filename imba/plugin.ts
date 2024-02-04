@@ -1,5 +1,5 @@
 import { plugin, type BunPlugin } from "bun";
-const compiler = require("./node_modules/imba/dist/compiler.cjs");
+const compiler = require("../node_modules/imba/dist/compiler.cjs");
 import ansis from 'ansis';
 
 // theme for messages printed in terminal
@@ -11,7 +11,6 @@ const theme = {
   filename: ansis.fg(15),
   success: ansis.fg(40),
   failure: ansis.fg(15).bg(124),
-  //failure: ansis.fg(15).bg(124).bold,
 };
 
 // this should be reset from outside to get results of entrypoint building
