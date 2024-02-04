@@ -16,7 +16,8 @@ const theme = {
 // this should be reset from outside to get results of entrypoint building
 export let stats = {
   failed: 0,
-  compiled: 0
+  compiled: 0,
+  errors: 0
 };
 
 export const imbaPlugin: BunPlugin = {
@@ -51,9 +52,9 @@ export const imbaPlugin: BunPlugin = {
         console.write(theme.failure(" fail ") + "\n");
         stats.failed++;
         for (let i = 0; i < out.errors.length; i++) {
-          console.log(out.errors[i].message)
           printerr(out.errors[i]);
         }
+        stats.errors++;
       }
       
       // and return the compiled source code as "js"

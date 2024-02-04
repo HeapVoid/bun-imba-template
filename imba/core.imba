@@ -4,57 +4,67 @@ import ansis from 'ansis'
 import type { BuildConfig } from 'bun'
 import {imbaPlugin, stats} from './plugin.ts'
 
+# color theme for terminal messages
+const theme =
+	count: ansis.fg(15).bold
+	start: ansis.fg(252).bg(233)
+	filedir: ansis.fg(15)
+	success: ansis.fg(40)
+	failure: ansis.fg(196)
+	time: ansis.fg(41)
+	link: ansis.fg(15) # .underline
+	online: ansis.fg(40).bg(22)
+	
 # ---------------------------------------------------------------
 # Function to bundle imba files into js from the given entrypoint
 # ---------------------------------------------------------------
-export def bundle options\BuildConfig
+export def bundle options = {}
 
-	# more on bun building params here: https://bun.sh/docs/bundler
-	const opts\BuildConfig =
-		entrypoints: options.entrypoints || ['./src/index.imba']
-		outdir: options.outdir || './public'
+	if !options.entrypoints[0]
+		console.log theme.failure('Error.') + " No {theme.filedir("entrypoint")} is specified!"
+		process.exit(0)
+	elif !fs.existsSync(options.entrypoints[0])
+		console.log theme.failure('Error.') + " The specified entrypoint does not exist: {theme.filedir(options.entrypoints[0])}"
+		process.exit(0)
+	elif !options.outdir
+		console.log theme.failure('Error.') + " No {theme.filedir("output folder")} is specified!"
+		process.exit(0)
+
+	stats.failed = 0;
+	stats.compiled = 0;
+	stats.errors = 0;
+	const start = Date.now();
+
+	console.log("──────────────────────────────────────────────────────────────────────");
+	console.log theme.start("Start building the Imba entrypoint{options.entrypoints.length > 1 ? 's' : ''}: {theme.filedir(options.entrypoints.join(','))}")
+	
+	# more on bun building params here: 
+	# https://bun.sh/docs/bundler
+
+	const result = await Bun.build
+		entrypoints: options.entrypoints
+		outdir: options.outdir
 		target: options.target || 'node'
 		sourcemap: options.sourcemap || 'none'
 		minify: options.minify || true
 		plugins: [imbaPlugin]
-
-	# theme for terminal messages
-	const theme =
-		count: ansis.fg(15).bold
-		start: ansis.fg(252).bg(233)
-		filedir: ansis.fg(15)
-		success: ansis.fg(40)
-		failure: ansis.fg(196)
-		time: ansis.fg(41)
-
-	stats.failed = 0;
-	stats.compiled = 0;
-	const start = Date.now();
-
-	console.log("──────────────────────────────────────────────────────────────────────");
-	console.log theme.start("Start building the Imba entrypoint{opts.entrypoints.length > 1 ? 's' : ''}: {theme.filedir(opts.entrypoints.join(','))}")
-	await Bun.build(opts)
+	
 	if stats.failed
 		console.log theme.start(theme.failure("Failure.") +" Imba compiler failed to proceed {theme.count("{stats.failed}")} file" + (stats.failed > 1 ? 's' : ''))
 	else
-		console.log theme.start(theme.success("Success.") +" It took {theme.time("{Date.now() - start}")} ms to compile {theme.count("{stats.compiled + stats.failed}")} file{stats.compiled + stats.failed > 1 ? 's' : ''} to the folder: {theme.filedir("{opts.outdir}")}")
-
-
+		console.log theme.start(theme.success("Success.") +" It took {theme.time("{Date.now() - start}")} ms to compile {theme.count("{stats.compiled + stats.failed}")} file{stats.compiled + stats.failed > 1 ? 's' : ''} to the folder: {theme.filedir("{options.outdir}")}")
+	
+	if !result.success and !stats.errors
+		# console.log('')
+		# console.log("──────────────────────────── LOGS FROM BUN ────────────────────────────");
+		for log in result.logs
+			console.log log
+		# console.log("──────────────────────────────────────────────────────────────────────");
 
 # ---------------------------------------------------------------------
 # Function that monitors folder, bundles on change and serves via HTTP
 # ---------------------------------------------------------------------
 export def serve options = {source: '', public: '', entry: 'index.imba', port: 8080}
-
-	# colortheme for terminal messages
-	const theme =
-		count: ansis.fg(15).bold
-		start: ansis.fg(252).bg(233)
-		filedir: ansis.fg(15)
-		success: ansis.fg(40)
-		failure: ansis.fg(196)
-		time: ansis.fg(41)
-		link: ansis.fg(40).underline
 
 	# vaidate for folders and files needed for serving
 	if !options.source
@@ -111,8 +121,9 @@ export def serve options = {source: '', public: '', entry: 'index.imba', port: 8
 			message: do(ws)
 				return
 
-	console.log("──────────────────────────────────────────────────────────────────────");
-	console.log("HTTP server is up and running: {theme.link("http://localhost:{options.port}")}")
+	# console.log("──────────────────────────────────────────────────────────────────────");
+	console.log('')
+	console.log(theme.online(" HTTP server is up and running: {theme.link("http://localhost:{options.port} ")}"))
 
 	# watch for changes in the source folder
 	const src = path.dirname(Bun.main) + options.source.slice(1)
