@@ -15,9 +15,8 @@ bun serve
 ```
 **Known issues**: 
 - Current version of Bun's watch function do not work well with WSL on Windows. Independent of how the watch is initiated: via code or CLI. At least on my working computer. Please share your results with me.
-- Though Imba files compiles as expected some of the functionality does not work on the frontend. For example `self` is undefined when is call in the tag functions.
 - L function does not work.
-- Some errors are not thrown. Bun likes silence.
+
 
 ## How it works
 I don't usually use `create` methods of different CLI tools to make bootstrap projects, bacause I like to know how things work under the hood. So let's dive into details...

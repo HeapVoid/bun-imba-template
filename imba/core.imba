@@ -55,11 +55,8 @@ export def bundle options = {}
 		console.log theme.start(theme.success("Success.") +" It took {theme.time("{Date.now() - start}")} ms to compile {theme.count("{stats.compiled + stats.failed}")} file{stats.compiled + stats.failed > 1 ? 's' : ''} to the folder: {theme.filedir("{options.outdir}")}")
 	
 	if !result.success and !stats.errors
-		# console.log('')
-		# console.log("──────────────────────────── LOGS FROM BUN ────────────────────────────");
 		for log in result.logs
 			console.log log
-		# console.log("──────────────────────────────────────────────────────────────────────");
 
 # ---------------------------------------------------------------------
 # Function that monitors folder, bundles on change and serves via HTTP

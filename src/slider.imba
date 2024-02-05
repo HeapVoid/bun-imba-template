@@ -5,13 +5,14 @@
 export tag Slider
 	prop timer = 5000
 	def slide
-		const max = self.scrollWidth - self.clientWidth
-		const left = max === self.scrollLeft ? 0 : self.clientWidth;
-		self.scrollTo({ left, behavior: 'smooth' })
+		if self.scrollWidth - self.clientWidth === self.scrollLeft
+			self.scrollTo({ left: 0, behavior: 'smooth' })
+		else
+			self.scrollBy({ left: self.clientWidth, behavior: 'smooth' })
 	def mount   do #interval = setInterval(slide.bind(self), timer)
 	def unmount do clearInterval(#interval)
 
-	<self#slider.h-screen.w-full.overflow-hidden.flex.flex-nowrap.text-center>
+	<self.h-screen.w-full.overflow-hidden.flex.flex-nowrap.text-center>
 		<div.bg-teal-500.text-white.space-y-4.flex-none.w-full.flex.flex-col.items-center.justify-center>
 			<h2.text-4xl.max-w-md> "Imba and Bun"
 			<p.max-w-md> "They finally met. Now you can bundle your Imba server side or client side projects with Bun in milliseconds."
