@@ -1,5 +1,5 @@
 import { plugin, type BunPlugin } from "bun";
-const compiler = require("../node_modules/imba/dist/compiler.cjs");
+const compiler = require("./node_modules/imba/dist/compiler.cjs");
 import ansis from 'ansis';
 
 // theme for messages printed in terminal

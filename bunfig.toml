@@ -1,1 +1,1 @@
-preload = ["./imba/plugin.ts"]
+preload = ["./plugin.ts"]

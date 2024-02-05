@@ -2,7 +2,8 @@ import fs from "fs"
 import path from 'path'
 import ansis from 'ansis'
 import type { BuildConfig } from 'bun'
-import {imbaPlugin, stats} from './plugin.ts'
+import { imbaPlugin, stats } from '../plugin.ts'
+import { watch } from "chokidar";
 
 # color theme for terminal messages
 const theme =
@@ -61,28 +62,30 @@ export def bundle options = {}
 # ---------------------------------------------------------------------
 # Function that monitors folder, bundles on change and serves via HTTP
 # ---------------------------------------------------------------------
-export def serve options = {source: '', public: '', entry: 'index.imba', port: 8080}
+export def serve options = {source: '', public: '', entry: 'index.imba', port: 8080, chokidar: false, hmr: {favon: true, favicon: ''}}
+	
+	const entrypoint = options.source + options.entry
 
 	# vaidate for folders and files needed for serving
 	if !options.source
 		console.log theme.failure('Error.') + " No {theme.filedir("source")} folder is specified!"
 		process.exit(0)
 	elif !fs.existsSync(options.source)
-		console.log theme.failure('Error.') + " The specified source folder does not exist: {theme.filedir("source")}"
+		console.log theme.failure('Error.') + " The specified source folder does not exist: {theme.filedir(options.source)}"
 		process.exit(0)
 	elif !options.public
 		console.log theme.failure('Error.') + " No {theme.filedir("public")} folder is specified!"
 		process.exit(0)
 	elif !fs.existsSync(options.public)
-		console.log theme.failure('Error.') + " The specified public folder does not exist: {theme.filedir("public")}"
+		console.log theme.failure('Error.') + " The specified public folder does not exist: {theme.filedir(options.public)}"
 		process.exit(0)
-	elif !(await Bun.file(options.source+'/'+options.entry).exists!)
-		console.log theme.failure('Error.') + " The specified entrypoint does not exist: {theme.filedir("{options.source+'/'+options.entry}")}"
+	elif !(await Bun.file(entrypoint).exists!)
+		console.log theme.failure('Error.') + " The specified entrypoint does not exist: {theme.filedir("{entrypoint}")}"
 		process.exit(0)
 
 	# build the project sources
 	const build\BuildConfig = {
-		entrypoints: [options.source+'/'+options.entry]
+		entrypoints: [entrypoint]
 		outdir: options.public
 		target: 'browser'
 		minify: false
@@ -91,16 +94,21 @@ export def serve options = {source: '', public: '', entry: 'index.imba', port: 8
 
 	# run http server to serve static files
 	let clients\ServerWebSocket[] = []
-	let hmr = (await Bun.file('./imba/hmr.html').text!).replace(/{{port}}/g, "{options.port}")
+	let hmr = ''
+	if options.hmr.favicon
+		hmr = (await Bun.file(import.meta.dir + '/hmr.html').text!)
+			.replace('{{PORT}}', "{options.port}")
+			.replace('{{FAV}}', "{options.hmr.favicon}")
+			.replace('{{FAVON}}', "{options.hmr.favon}")
 
 	Bun.serve
 		port: options.port
 		fetch: do(req, server)
 			return if server.upgrade(req)
 			const destination = new URL(req.url).pathname
-			const path = options.public + (destination.length <= 2 ? '/index.html' : destination)
+			const path = options.public + (destination.length <= 1 ? '/index.html' : destination)
 			const file = await Bun.file(path)
-			if path.endsWith('.html')
+			if path.endsWith('index.html')
 				return new Response((await file.text!) + hmr, {status: 200, headers: {"Content-Type": "text/html;charset=utf-8"}})
 			return new Response(file)
 		error: do(err) return new Response(null, { status: 404 })
@@ -123,14 +131,27 @@ export def serve options = {source: '', public: '', entry: 'index.imba', port: 8
 	console.log(theme.online(" HTTP server is up and running: {theme.link("http://localhost:{options.port} ")}"))
 
 	# watch for changes in the source folder
-	const src = path.dirname(Bun.main) + options.source.slice(1)
-	let watcher = fs.watch(src, {recursive: true}, &) do(event, filename)
+	let watcher\any
+	const rebuild = do 
 		await bundle(build)
 		for client in clients
 			client.send('reload')
+	
+	if options.chokidar
+		watcher = watch(options.source, {
+			ignored: /(^|[\/\\])\../
+			persistent: true
+			usePolling: true
+			interval: 100
+			depth: 5
+			binaryInterval: 1300
+		}).on('change', do rebuild!)
+
+	else
+		watcher = fs.watch(options.source, {recursive: true}, do rebuild)
 
 	process.on "SIGINT", do
-		watcher.close!
+		watcher.close! if watcher and watcher.close isa Function
 		process.exit(0)
 
 

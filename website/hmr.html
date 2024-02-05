@@ -1,13 +1,22 @@
 <script type='text/javascript'>
     // code is injected for live reloading
-    const res = {ws: "ws://localhost:{{port}}", image: "http://localhost:{{port}}/favicon.png"}
+    const port = {{PORT}};
+    const res = {ws: "ws://localhost:" + port, favicon: "http://localhost:"+port+"/{{FAV}}"}
     let force = false;
-
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = '';
+        document.head.appendChild(link);
+    }
+    let origin = link.href;
+    
     function ping(callback) {
         let img = new Image();
         img.onload = function() { if (img) {img.src = ''; img = null; callback(true)} };
         img.onerror = function() { if (img) {img.src = ''; img = null; callback(false);} };
-        img.src = res.image + '?r=' + Math.random();
+        img.src = res.favicon + '?r=' + Math.random();
         setTimeout(() => {if (img) {img.src = ''; img = null; callback(false);}}, 500);
     }
 
@@ -15,21 +24,18 @@
         if (answer) {
             const ws = new WebSocket(res.ws);
             ws.onmessage = (evt) => {if (evt.data == 'reload') location.reload()};
-            ws.onclose = () => {favicon(false); console.log('🔴 Live reloading is down'); retry(1000); force = true};
-            ws.onopen = () => {if (force) {location.reload();} else {favicon(true); console.log('🟢 Live reloading is active')}};
+            ws.onclose = () => {favswitch(false); console.log('🔴 Live reloading is down'); retry(1000); force = true};
+            ws.onopen = () => {if (force) {location.reload();} else {favswitch(true); console.log('🟢 Live reloading is active')}};
         }
         else {retry(1000);}
     }
 
-    function favicon(active){
-        var link = document.querySelector("link[rel~='icon']");
-        if (!link) {
-            link = document.createElement('link');
-            link.rel = 'icon';
-            document.head.appendChild(link);
-        }
+    function favswitch(active){
         if (active) {
-            link.href = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>🟢</text></svg>"
+            if({{FAVON}}) {
+                link.href = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>🟢</text></svg>"
+            }
+            else { link.href = origin; }
         }
         else {
             link.href = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>🔴</text></svg>"

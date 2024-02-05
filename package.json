@@ -1,18 +1,19 @@
 {
   "name": "imba-bun-template",
-  "module": "./src/index.imba",
+  "module": "./website/src/index.imba",
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
     "ansis": "^2.1.0",
-    "imba": "^2.0.0-alpha.234"
+    "imba": "^2.0.0-alpha.234",
+    "chokidar": "^3.5.3"
   },
   "scripts": {
-    "serve": "bun --watch run ./cmd.serve.imba",
-    "bundle": "bun run ./cmd.bundle.imba"
+    "serve": "bun --watch run ./website/cmd.serve.imba",
+    "bundle": "bun run ./website/cmd.bundle.imba"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-  "dependencies": {}
+  "dependencies": { }
 }
