@@ -1,6 +1,7 @@
 import { plugin, type BunPlugin } from "bun";
-const compiler = require("./node_modules/imba/dist/compiler.cjs");
 import ansis from 'ansis';
+import * as compiler from 'imba/compiler'
+import dir from 'path'
 
 // theme for messages printed in terminal
 // color pallete can be seen here: https://raw.githubusercontent.com/webdiscus/ansis/master/docs/img/ansi256.png
@@ -24,45 +25,67 @@ export const imbaPlugin: BunPlugin = {
   name: "imba",
   async setup(build) {
     
-    // when an .imba file is imported...
-    build.onLoad({ filter: /\.imba$/ }, async ({ path }) => {
-      
-      const filename = path.replace(/^.*[\\/]/, '');
-      const folder = path.replace(filename, '');
-      let contents = '';
+      build.onResolve({ filter: /^.*[^.]{5}$/ }, ({ path, importer }) => {
 
-      // read and compile it with the imba compiler
-      const file = await Bun.file(path).text();
-      const out = compiler.compile(file, {
-        sourcePath: path,
-        platform: 'browser'
-      })
-      
-      // print about file complitaion
-      console.write(theme.action("compiling: ") + theme.folder(folder) + theme.filename(filename) + " - ");
-
-      // the file has been successfully compiled
-      if (!out.errors || !out.errors.length) {
-        console.write(theme.success("ok" + "\n"));
-        stats.compiled++;
-        contents = out.js;
-      }
-      // there were errors during compilation
-      else {
-        console.write(theme.failure(" fail ") + "\n");
-        stats.failed++;
-        for (let i = 0; i < out.errors.length; i++) {
-          printerr(out.errors[i]);
+        let filename = path;
+        if (path.startsWith('.')) { filename = dir.resolve(dir.dirname(importer), path) };
+        
+        let resolved = ''
+        try { resolved = Bun.resolveSync(filename, '.'); }
+        catch (error) {
+          try { resolved = Bun.resolveSync(filename + '.imba', '.'); }
+          catch (error) { 
+            try { resolved = Bun.resolveSync(dir.resolve('./node_modules', filename + '.imba'), '.'); }
+            catch (error) { 
+              try { resolved = Bun.resolveSync(dir.resolve(dir.dirname(importer), filename + '.imba'), '.'); }
+              catch (error) { }
+            }
+          }
         }
-        stats.errors++;
-      }
-      
-      // and return the compiled source code as "js"
-      return {
-        contents,
-        loader: "js",
-      };
-    });
+
+        return { path: resolved };
+        
+      })
+
+      // when an .imba file is imported...
+      build.onLoad({ filter: /\.imba$/ }, async ({ path }) => {
+        
+        const filename = path.replace(/^.*[\\/]/, '');
+        const folder = path.replace(filename, '');
+        let contents = '';
+
+        // read and compile it with the imba compiler
+        const file = await Bun.file(path).text();
+        const out = compiler.compile(file, {
+          sourcePath: path,
+          platform: 'browser'
+        })
+        
+        // print about file complitaion
+        console.write(theme.action("compiling: ") + theme.folder(folder) + theme.filename(filename) + " - ");
+
+        // the file has been successfully compiled
+        if (!out.errors || !out.errors.length) {
+          console.write(theme.success("ok" + "\n"));
+          stats.compiled++;
+          contents = out.js;
+        }
+        // there were errors during compilation
+        else {
+          console.write(theme.failure(" fail ") + "\n");
+          stats.failed++;
+          for (let i = 0; i < out.errors.length; i++) {
+            printerr(out.errors[i]);
+          }
+          stats.errors++;
+        }
+        
+        // and return the compiled source code as "js"
+        return {
+          contents,
+          loader: "js",
+        };
+      });
   }
 };
 

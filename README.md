@@ -15,8 +15,6 @@ bun serve
 ```
 **Known issues**: 
 - L function does not work.
-- Files can be imported only with specified extension
-
 
 ## How it works
 I don't usually use `create` methods of different CLI tools to make bootstrap projects, bacause I like to know how things work under the hood. So let's dive into details...
