@@ -148,7 +148,7 @@ export def serve options = {source: '', public: '', entry: 'index.imba', port: 8
 		}).on('change', do rebuild!)
 
 	else
-		watcher = fs.watch(options.source, {recursive: true}, do rebuild)
+		watcher = fs.watch(options.source, {recursive: true}, &) do(event, filename) rebuild!
 
 	process.on "SIGINT", do
 		watcher.close! if watcher and watcher.close isa Function

@@ -1,4 +1,4 @@
-import {serve} from './core.imba'
+import {serve} from './server.imba'
 
 serve 
 	source: import.meta.dir + '/src' # full path to source folder

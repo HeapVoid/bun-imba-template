@@ -1,4 +1,4 @@
-import {bundle} from './core.imba'
+import {bundle} from './server.imba'
 
 # more on bun building params here: 
 # https://bun.sh/docs/bundler

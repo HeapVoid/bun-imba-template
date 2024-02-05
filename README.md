@@ -96,9 +96,9 @@ export def bundle options
 		sourcemap: options.sourcemap || 'none'
 		minify: options.minify || true
 ```
-This code is already written in the `website/core.imba` file. It also includes logging messages to the terminal. So when you need to bundle you can just write:
+This code is already written in the `website/server.imba` file. It also includes logging messages to the terminal. So when you need to bundle you can just write:
 ```imba
-import {bundle} from './website/core.imba'
+import {bundle} from './website/server.imba'
 
 bundle 
 	entrypoints: [import.meta.dir + '/src/index.imba']
@@ -118,9 +118,9 @@ Bun.serve
 		return new Response(file)
 	error: do(err) return new Response(null, { status: 404 })
 ```
-The second function in the `/website/core.imba` file called `serve` implements HTTP server, watches source directory for changes and informs browser on the changes. It can be called pretty easily:
+The second function in the `/website/server.imba` file called `serve` implements HTTP server, watches source directory for changes and informs browser on the changes. It can be called pretty easily:
 ```imba
-import {serve} from './website/core.imba'
+import {serve} from './website/server.imba'
 
 serve 
 	source: import.meta.dir + '/src' # full path to source folder
@@ -134,7 +134,7 @@ Though Bun has a built-in function to monitor changes in directory it is based o
 #### Hot reload
 To make frontend development a pleasure the project should be rebundled on every code change, and the browser should be informed about that to reload the updated version.
 
-To be able to send message to connected browsers (even if you are developing on localhost the project could be opened in several tabs) the fronend code should keep connection with the server. To achive that the http server in the `imba/core.imba` file injects the `hmr.html` in the `index.html`.
+To be able to send message to connected browsers (even if you are developing on localhost the project could be opened in several tabs) the fronend code should keep connection with the server. To achive that the http server in the `imba/server.imba` file injects the `hmr.html` in the `index.html`.
 
 The code in the `hmr.html` tries to download `favicon.png` to know if the server is alive. This is needed to get rid of `ERR_CONNECTION_REFUSED` errors in the browser console, which bothers developers with any other approach. And that is why `favicon.png` is needed for hot reload to properly work.
 
