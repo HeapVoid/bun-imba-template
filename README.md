@@ -74,7 +74,7 @@ Well, this is enough to develop and host backend projects. Just run the command 
 ```bash
 bun run "./index.imba" ✔️
 ```
-You can delete the `website` folder if you working on server side application. It is needed only for developing a frontend project, since it is another story...
+You can delete the `website` folder if you are working on server-side application. It is needed only for developing a frontend project, since it is another story...
 
 ### Frontend development
 
