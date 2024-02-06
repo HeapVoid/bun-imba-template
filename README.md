@@ -72,7 +72,7 @@ Well, this is enough to develop and host backend projects. Just run the command 
 ```bash
 bun run "./index.imba" ✔️
 ```
-You can delete everything except `plugin.ts`, `bunfig.toml`, `tsconfig.json`, and of course `package.json` if you are working on server-side application. All other files are needed only for developing a frontend project.
+You can delete `src` and `public` folders and also `server.imba`, `run.bundle.imba`, `run.serve.imba`, `hmr.html` if you are working on server-side application. They are only needed for developing a frontend project.
 
 ### Frontend development
 
