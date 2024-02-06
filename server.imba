@@ -2,7 +2,7 @@ import fs from "fs"
 import path from 'path'
 import ansis from 'ansis'
 import type { BuildConfig } from 'bun'
-import { imbaPlugin, stats } from '../plugin.ts'
+import { imbaPlugin, stats } from './plugin.ts'
 import { watch } from "chokidar";
 
 # color theme for terminal messages

@@ -9,8 +9,8 @@
     "chokidar": "^3.5.3"
   },
   "scripts": {
-    "serve": "bun run ./website/run.serve.imba",
-    "bundle": "bun run ./website/run.bundle.imba"
+    "serve": "bun run ./run.serve.imba",
+    "bundle": "bun run ./run.bundle.imba"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

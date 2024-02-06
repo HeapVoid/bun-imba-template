@@ -26,7 +26,7 @@ And the first thing we need to make Bun and Imba work togehter is to show Bun ho
 ### Backend development
 To develop backend with Imba using Bun the only thing that is needed is the plugin for Bun. The working code of such plugin is pretty small: 
 ```js
-const compiler = require("./node_modules/imba/dist/compiler.cjs");
+import * as compiler from 'imba/compiler'
 
 export const imbaPlugin: BunPlugin = {
   name: "imba",
@@ -72,7 +72,7 @@ Well, this is enough to develop and host backend projects. Just run the command 
 ```bash
 bun run "./index.imba" ✔️
 ```
-You can delete the `website` folder if you are working on server-side application. It is needed only for developing a frontend project, since it is another story...
+You can delete everything except `plugin.ts`, `bunfig.toml`, `tsconfig.json`, and of course `package.json` if you are working on server-side application. All other files are needed only for developing a frontend project.
 
 ### Frontend development
 
@@ -94,9 +94,9 @@ export def bundle options
 		sourcemap: options.sourcemap || 'none'
 		minify: options.minify || true
 ```
-This code is already written in the `website/server.imba` file. It also includes logging messages to the terminal. So when you need to bundle you can just write:
+This code is already written in the `server.imba` file. It also includes logging messages to the terminal. So when you need to bundle you can just write:
 ```imba
-import {bundle} from './website/server.imba'
+import {bundle} from './server.imba'
 
 bundle 
 	entrypoints: [import.meta.dir + '/src/index.imba']
@@ -116,9 +116,9 @@ Bun.serve
 		return new Response(file)
 	error: do(err) return new Response(null, { status: 404 })
 ```
-The second function in the `/website/server.imba` file called `serve` implements HTTP server, watches source directory for changes and informs browser on the changes. It can be called pretty easily:
+The second function in the `/server.imba` file called `serve` implements HTTP server, watches source directory for changes and informs browser on the changes. It can be called pretty easily:
 ```imba
-import {serve} from './website/server.imba'
+import {serve} from './server.imba'
 
 serve 
 	source: import.meta.dir + '/src' # full path to source folder
