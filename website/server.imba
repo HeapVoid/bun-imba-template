@@ -31,9 +31,11 @@ export def bundle options = {}
 		console.log theme.failure('Error.') + " No {theme.filedir("output folder")} is specified!"
 		process.exit(0)
 
-	stats.failed = 0;
-	stats.compiled = 0;
-	stats.errors = 0;
+	stats.failed = 0
+	stats.compiled = 0
+	stats.errors = 0
+	stats.bundled = 0
+
 	const start = Date.now();
 
 	console.log("──────────────────────────────────────────────────────────────────────");
@@ -53,7 +55,7 @@ export def bundle options = {}
 	if stats.failed
 		console.log theme.start(theme.failure("Failure.") +" Imba compiler failed to proceed {theme.count("{stats.failed}")} file" + (stats.failed > 1 ? 's' : ''))
 	else
-		console.log theme.start(theme.success("Success.") +" It took {theme.time("{Date.now() - start}")} ms to compile {theme.count("{stats.compiled + stats.failed}")} file{stats.compiled + stats.failed > 1 ? 's' : ''} to the folder: {theme.filedir("{options.outdir}")}")
+		console.log theme.start(theme.success("Success.") +" It took {theme.time("{Date.now() - start}")} ms to bundle {theme.count("{stats.bundled}")} file{stats.bundled > 1 ? 's' : ''} to the folder: {theme.filedir("{options.outdir}")}")
 	
 	if !result.success and !stats.errors
 		for log in result.logs

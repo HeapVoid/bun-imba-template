@@ -2,6 +2,7 @@ import { plugin, type BunPlugin } from "bun";
 import ansis from 'ansis';
 import * as compiler from 'imba/compiler'
 import dir from 'path'
+import fs from 'fs'
 
 // theme for messages printed in terminal
 // color pallete can be seen here: https://raw.githubusercontent.com/webdiscus/ansis/master/docs/img/ansi256.png
@@ -14,18 +15,23 @@ const theme = {
   failure: ansis.fg(15).bg(124),
 };
 
+const cache = process.cwd() + '/.cache/';
+if (!fs.existsSync(cache)){ fs.mkdirSync(cache);}
+
 // this should be reset from outside to get results of entrypoint building
 export let stats = {
   failed: 0,
   compiled: 0,
+  cached: 0,
+  bundled: 0,
   errors: 0
 };
 
 export const imbaPlugin: BunPlugin = {
   name: "imba",
   async setup(build) {
-    
-      build.onResolve({ filter: /^.*[^.]{5}$/ }, ({ path, importer }) => {
+
+    build.onResolve({ filter: /^.*[^.]{5}$/ }, ({ path, importer }) => {
 
         let filename = path;
         if (path.startsWith('.')) { filename = dir.resolve(dir.dirname(importer), path) };
@@ -50,11 +56,22 @@ export const imbaPlugin: BunPlugin = {
       // when an .imba file is imported...
       build.onLoad({ filter: /\.imba$/ }, async ({ path }) => {
         
-        const filename = path.replace(/^.*[\\/]/, '');
-        const folder = path.replace(filename, '');
+        const f = dir.parse(path)
         let contents = '';
+        
+        // return the cached version if it exists
+        const cached = cache + Bun.hash(path + fs.statSync(path).mtimeMs) + '_' + f.name + '.js';;
+        if (fs.existsSync(cached)) {
+          stats.bundled++;
+          stats.cached++;
+          //console.log(theme.action("cached: ") + theme.folder(f.dir + '/') + theme.filename(f.base) + " - " + theme.success("ok"));
+          return {
+            contents: await Bun.file(cached).text(),
+            loader: "js",
+          };
+        }
 
-        // read and compile it with the imba compiler
+        // if no cached version read and compile it with the imba compiler
         const file = await Bun.file(path).text();
         const out = compiler.compile(file, {
           sourcePath: path,
@@ -62,13 +79,15 @@ export const imbaPlugin: BunPlugin = {
         })
         
         // print about file complitaion
-        console.write(theme.action("compiling: ") + theme.folder(folder) + theme.filename(filename) + " - ");
+        console.write(theme.action("compiling: ") + theme.folder(f.dir + '/') + theme.filename(f.base) + " - ");
 
         // the file has been successfully compiled
         if (!out.errors || !out.errors.length) {
-          console.write(theme.success("ok" + "\n"));
+          stats.bundled++;
           stats.compiled++;
           contents = out.js;
+          await Bun.write(cached, contents);
+          console.write(theme.success("cached" + "\n"));
         }
         // there were errors during compilation
         else {
