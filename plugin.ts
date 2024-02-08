@@ -31,80 +31,76 @@ export const imbaPlugin: BunPlugin = {
   name: "imba",
   async setup(build) {
 
-    build.onResolve({ filter: /^.*[^.]{5}$/ }, ({ path, importer }) => {
-
-        let filename = path;
-        if (path.startsWith('.')) { filename = dir.resolve(dir.dirname(importer), path) };
+    build.onResolve({filter: /.*[^.imba]$/ }, ({ path, importer }) => {
         
-        let resolved = ''
-        try { resolved = Bun.resolveSync(filename, '.'); }
-        catch (error) {
-          try { resolved = Bun.resolveSync(filename + '.imba', '.'); }
-          catch (error) { 
-            try { resolved = Bun.resolveSync(dir.resolve('./node_modules', filename + '.imba'), '.'); }
-            catch (error) { 
-              try { resolved = Bun.resolveSync(dir.resolve(dir.dirname(importer), filename + '.imba'), '.'); }
-              catch (error) { }
-            }
-          }
+      if(path.endsWith('.js') || path.endsWith('.json')) throw new Error();
+      
+      let filename = path;
+      if (path.startsWith('.')) { filename = dir.resolve(dir.dirname(importer), path) };
+      filename += '.imba';
+      
+      try { return {path: Bun.resolveSync(filename, '.')} }
+      catch (error) {
+        try { return {path: Bun.resolveSync(dir.resolve('./node_modules', filename), '.')} }
+        catch (error) { 
+          try { return {path: Bun.resolveSync(dir.resolve(dir.dirname(importer), filename), '.')} }
+          finally {}
         }
+      }
+    })
 
-        return { path: resolved };
-        
-      })
-
-      // when an .imba file is imported...
-      build.onLoad({ filter: /\.imba$/ }, async ({ path }) => {
-        
-        const f = dir.parse(path)
-        let contents = '';
-        
-        // return the cached version if it exists
-        const cached = cache + Bun.hash(path + fs.statSync(path).mtimeMs) + '_' + f.name + '.js';;
-        if (fs.existsSync(cached)) {
-          stats.bundled++;
-          stats.cached++;
-          //console.log(theme.action("cached: ") + theme.folder(f.dir + '/') + theme.filename(f.base) + " - " + theme.success("ok"));
-          return {
-            contents: await Bun.file(cached).text(),
-            loader: "js",
-          };
-        }
-
-        // if no cached version read and compile it with the imba compiler
-        const file = await Bun.file(path).text();
-        const out = compiler.compile(file, {
-          sourcePath: path,
-          platform: 'browser'
-        })
-        
-        // print about file complitaion
-        console.write(theme.action("compiling: ") + theme.folder(f.dir + '/') + theme.filename(f.base) + " - ");
-
-        // the file has been successfully compiled
-        if (!out.errors || !out.errors.length) {
-          stats.bundled++;
-          stats.compiled++;
-          contents = out.js;
-          await Bun.write(cached, contents);
-          console.write(theme.success("cached" + "\n"));
-        }
-        // there were errors during compilation
-        else {
-          console.write(theme.failure(" fail ") + "\n");
-          stats.failed++;
-          for (let i = 0; i < out.errors.length; i++) {
-            printerr(out.errors[i]);
-          }
-          stats.errors++;
-        }
-        
-        // and return the compiled source code as "js"
+    // when an .imba file is imported...
+    build.onLoad({ filter: /\.imba$/ }, async ({ path }) => {
+      
+      const f = dir.parse(path)
+      let contents = '';
+      
+      // return the cached version if it exists
+      const cached = cache + Bun.hash(path + fs.statSync(path).mtimeMs) + '_' + f.name + '.js';;
+      if (fs.existsSync(cached)) {
+        stats.bundled++;
+        stats.cached++;
+        //console.log(theme.action("cached: ") + theme.folder(f.dir + '/') + theme.filename(f.base) + " - " + theme.success("ok"));
         return {
-          contents,
+          contents: await Bun.file(cached).text(),
           loader: "js",
         };
-      });
+      }
+
+      // if no cached version read and compile it with the imba compiler
+      const file = await Bun.file(path).text();
+      const out = compiler.compile(file, {
+        sourcePath: path,
+        platform: 'browser'
+      })
+      
+      // print about file complitaion
+      console.write(theme.action("compiling: ") + theme.folder(f.dir + '/') + theme.filename(f.base) + " - ");
+
+      // the file has been successfully compiled
+      if (!out.errors || !out.errors.length) {
+        stats.bundled++;
+        stats.compiled++;
+        contents = out.js;
+        await Bun.write(cached, contents);
+        console.write(theme.success("cached" + "\n"));
+      }
+      // there were errors during compilation
+      else {
+        console.write(theme.failure(" fail ") + "\n");
+        stats.failed++;
+        for (let i = 0; i < out.errors.length; i++) {
+          printerr(out.errors[i]);
+        }
+        stats.errors++;
+      }
+      
+      // and return the compiled source code as "js"
+      return {
+        contents,
+        loader: "js",
+      };
+    });
   }
 };
 
