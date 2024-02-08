@@ -128,7 +128,6 @@ export def serve options = {source: '', public: '', entry: 'index.imba', port: 8
 			message: do(ws)
 				return
 
-	# console.log("──────────────────────────────────────────────────────────────────────");
 	console.log('')
 	console.log(theme.online(" HTTP server is up and running: {theme.link("http://localhost:{options.port} ")}"))
 
