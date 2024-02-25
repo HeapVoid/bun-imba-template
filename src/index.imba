@@ -1,3 +1,3 @@
-import {Slider} from './slider.imba'
+import {Component} from './component.imba'
 
-imba.mount <Slider>
+imba.mount <Component>

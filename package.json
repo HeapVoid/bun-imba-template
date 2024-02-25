@@ -1,19 +1,13 @@
 {
   "name": "imba-bun-template",
-  "module": "./website/src/index.imba",
+  "module": "./src/index.imba",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest",
-    "ansis": "^2.1.0",
-    "imba": "^2.0.0-alpha.234",
-    "chokidar": "^3.5.3"
+    "bimba-cli": "^0.1.5",
+    "imba": "^2.0.0-alpha.234"
   },
   "scripts": {
-    "serve": "bun run ./run.serve.imba",
-    "bundle": "bun run ./run.bundle.imba"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": { }
+    "dev": "bunx bimba src/index.imba --outdir public --watch --clearcache",
+    "bundle": "bunx bimba src/index.imba --outdir public --minify"
+  }
 }
