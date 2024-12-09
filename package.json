@@ -3,8 +3,8 @@
   "module": "./src/index.imba",
   "type": "module",
   "devDependencies": {
-    "bimba-cli": "^0.1.5",
-    "imba": "^2.0.0-alpha.234"
+    "bimba-cli": "latest",
+    "imba": "latest"
   },
   "scripts": {
     "dev": "bunx bimba src/index.imba --outdir public --watch --clearcache",

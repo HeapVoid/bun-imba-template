@@ -1,3 +1,8 @@
-import {Component} from './component.imba'
+import {Block} from './block.imba'
 
-imba.mount <Component>
+tag App
+	<self>
+		<Block>
+			css h:100vh w:100%
+
+imba.mount <App>

@@ -1,8 +1,8 @@
 # bun-imba-template
 
-This template uses [Bimba](https://github.com/HeapVoid/bimba) CLI tool to show how easily frontend could be developed with [Imba](https://imba.io) under [Bun](https://bun.sh). The speed and overall experience is marvelous.
+This template uses [Bimba](https://github.com/HeapVoid/bimba) CLI tool to show how easily frontend could be developed with [Imba](https://imba.io) under [Bun](https://bun.sh). The speed and overall experience is marvelous, so there is no need for dedicated bundlers like Vite. Just put all the assets straight in the public folder and use them as a variable values (see how Bun and Imba icons are used), to prevent Imba from bundling them.
 
-Install Bun. Though at the moment it does not natively run under Windows, it works well under WSL. I use Windows myself and I like using Bun.
+Install Bun (it now supports Windows).
 
 Clone this project and install project dependecies (there are only two of them: Imba and tiny Bimba-cli): 
 
